@@ -16,7 +16,7 @@ The pipeline focuses on reproducible data validation and transformation rather t
 
 The five entertainment Topics showed noticeably different attention lifecycles over the observation period. Some experienced sharp, short-lived spikes, while others maintained a larger share of their peak search interest over the following weeks.
 
-![Weekly entertainment attention lifecycles](images/attention_lifecycles.png)
+![Weekly entertainment attention lifecycles](images/attention-lifecycles.png)
 
 The size of a Topic's peak did not necessarily correspond to more persistent attention. To compare persistence across Topics with different peak values, I calculated average post-peak interest as a percentage of each Topic's own peak.
 

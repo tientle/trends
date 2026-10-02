@@ -1,0 +1,489 @@
+STUDENT_NAME: Tien Le
+NETID: tl437
+OPTION: 3
+ROLE: architect
+AGENT_TOOL: VSCode CoPilot
+REPOSITORY_B_URL: https://github.com/tientle/trends
+
+===== TRANSCRIPT START =====
+[STUDENT]
+User: You are the Architect for a small data engineering project. Do not implement the project or write application code yet.
+
+I am building this as Repo B for a graduate-level Data Engineering assignment. The assignment requires an AI-assisted workflow with separate Architect, Builder, and Tester stages. This conversation is ONLY the Architect stage.
+
+I need to end this stage with an actionable architecture plan that will eventually be saved as:
+
+docs/plan.md
+
+However, do NOT immediately create the final plan. I want to discuss and review your architectural recommendations first, make my own decisions, and revise the architecture with you before finalizing it.
+
+PROJECT IDEA
+
+Working title:
+
+"The Internet's Attention Span"
+
+Broad question:
+
+How long does the internet care about things?
+
+I want to use Google Trends search-interest time-series data to investigate how attention toward cultural moments, products, people, entertainment, memes, trends, etc. rises, peaks, persists, declines, or resurges over time.
+
+For example, two topics might both experience a large spike in search interest, but one may disappear almost immediately while another remains elevated for months.
+
+Longer term, I could imagine expanding this into a data science / data visualization project exploring different shapes or lifecycles of internet attention, potentially as an interactive or scrollytelling portfolio project.
+
+That larger analysis is NOT the goal of today's MVP.
+
+REPO B MVP
+
+For today's assignment, I want to build the DATA ENGINEERING FOUNDATION needed to study this question.
+
+Conceptually, I am imagining something like:
+
+Google Trends data
+→ ingestion
+→ raw data
+→ validation
+→ cleaning / normalization
+→ time-series transformations
+→ feature engineering
+→ structured output
+→ testing / verification
+
+The output should eventually make it possible to compare the lifecycle of attention across different search terms.
+
+Potential features I am interested in include things like:
+
+- peak date
+- peak search-interest score
+- pre-peak baseline
+- time to peak
+- post-peak persistence
+- decay after peak
+- time until interest falls substantially from its peak
+- resurgence / secondary peaks
+- change in baseline after the trend
+
+These are IDEAS, not fixed requirements. Part of your job as Architect is to determine which metrics are statistically and technically defensible for a small MVP.
+
+IMPORTANT DATA CONSTRAINT
+
+I have NOT collected the data yet.
+
+I know Google Trends provides normalized search-interest data, but I do not know the available data-access methods well enough to choose one confidently.
+
+Before designing the rest of the system around a particular source, investigate/reason through the data acquisition options.
+
+Please determine:
+
+1. What practical and legitimate methods are currently available for obtaining Google Trends data.
+2. Whether an official API is realistically accessible for this project.
+3. Whether Google Trends CSV exports, public Google datasets, or another method would be more reproducible for a same-day MVP.
+4. What limitations each acquisition method creates.
+5. What the 0–100 Google Trends values actually represent and what comparisons are and are not valid.
+6. Whether separately downloaded search terms can validly be compared to one another.
+7. What time granularity and time window would make sense for measuring an "attention lifecycle."
+8. How the pipeline should preserve enough metadata about each Trends request/query so that results remain interpretable and reproducible.
+
+Do not assume a particular acquisition method works until you have evaluated its limitations.
+
+If automated acquisition is unreliable or inappropriate, I am comfortable manually exporting a manageable set of Google Trends CSV files for the MVP and having the pipeline begin from those raw files. Reproducibility and methodological validity are more important to me than automating every step.
+
+SCOPE
+
+This needs to be achievable today.
+
+I would rather have a small, reliable, well-tested pipeline than an ambitious system that is difficult to finish or defend.
+
+Constraints:
+
+- Python
+- approximately 10–20 search terms would be reasonable, but recommend a different number if appropriate
+- cultural/pop-culture examples are preferred
+- command-line execution is sufficient
+- no frontend required
+- no cloud deployment required
+- avoid unnecessary infrastructure
+- avoid paid APIs
+- Docker is required
+- automated tests are required
+- output should be human-inspectable
+- another person should be able to reproduce the transformation pipeline
+- the design should remain extensible for a larger analysis later
+
+DATA ENGINEERING FOCUS
+
+This is for a Data Engineering course.
+
+The core project should clearly demonstrate:
+
+- ingestion
+- raw vs processed data
+- schema/data validation
+- cleaning
+- transformations
+- reproducibility
+- storage/output
+- error handling
+- testing
+- containerization
+
+The project should NOT turn into a forecasting or machine-learning project today.
+
+Feature engineering from the time series is appropriate, but predictive modeling, clustering, sophisticated trend classification, and the eventual scrollytelling experience can be future work.
+
+IMPORTANT METHODOLOGICAL ISSUE
+
+I do not want to invent an arbitrary "attention span" metric simply because it sounds fun.
+
+Please challenge the analytical definitions.
+
+For example, if we consider something like "attention half-life," we need to decide what that actually means with normalized Google Trends data.
+
+Questions might include:
+
+- Is 50% of peak a meaningful threshold?
+- Should decay be measured relative to a pre-event baseline instead?
+- What happens when a term has multiple peaks?
+- What happens when interest never falls below the threshold?
+- How should zero values be interpreted?
+- How do we distinguish a true resurgence from ordinary noise?
+- Does normalization make certain cross-term comparisons invalid?
+
+I want the MVP's engineered features to have clear definitions and limitations.
+
+ARCHITECTURE QUESTIONS
+
+Please help me decide:
+
+- exact MVP scope
+- data acquisition method
+- number/type of search terms
+- time window and granularity
+- raw-data format
+- raw-data schema
+- processed-data schema
+- pipeline stages
+- project directory structure
+- storage/output format (CSV, Parquet, SQLite, etc.)
+- validation rules
+- missing-value behavior
+- duplicate handling
+- time-series normalization/cleaning
+- which engineered metrics belong in the MVP
+- precise definitions for those metrics
+- handling of multiple peaks and edge cases
+- configuration
+- logging/error handling
+- dependencies
+- CLI behavior
+- Docker architecture
+- unit tests
+- integration/end-to-end tests
+- manual smoke-test procedure
+- how I can manually inspect whether results make sense
+- methodological limitations that should be documented
+- what should explicitly be deferred to future work
+
+Please keep a strong distinction between:
+
+1. what is necessary for today's Repo B MVP, and
+2. what would be interesting future work for the larger "Internet's Attention Span" project.
+
+ARCHITECT WORKFLOW
+
+For your FIRST response:
+
+1. Inspect the current repository.
+2. Restate what you think the MVP is trying to accomplish.
+3. Identify the biggest architectural and data-validity uncertainties.
+4. Evaluate the realistic Google Trends data acquisition options.
+5. Propose a recommended MVP architecture.
+6. Explain your reasoning and important tradeoffs.
+7. Tell me if anything I proposed is unnecessarily complicated, methodologically weak, or outside the scope of a data engineering MVP.
+8. Ask me questions where my judgment is needed.
+
+Do NOT implement the project yet.
+
+Do NOT finalize docs/plan.md yet.
+
+I want to discuss your recommendations and make decisions before approving the architecture.
+
+Once I explicitly approve the architecture, create/finalize docs/plan.md so that I can start a completely NEW Builder conversation. The Builder should be able to read the repository and docs/plan.md and know exactly what to implement without needing access to this Architect conversation.
+
+[AGENT]
+GitHub Copilot: I’ll first inspect the empty-looking workspace and check whether there are repository files or local instructions to anchor the architecture. In parallel, I’ll verify current Google Trends acquisition options and their constraints before recommending a source.
+
+Inspect repository context
+
+
+
+Fetched 2 resources
+
+Read 
+
+Searched for files matching `trends`, no matches
+
+Searched for files matching `trends` · `**/.*`, no matches
+
+Read 
+
+Searched for files matching `trends` · `**/{README*,AGENTS.md,COPILOT*,*.instructions.md,*.prompt.md,*.agent.md}`, no matches
+
+Read memory
+
+Read 
+
+Read 
+
+Read 
+
+Read 
+
+Read 
+
+Read 
+
+Read 
+
+Searched for files matching `trends`, no matches
+
+The repository really is a blank starting point, which means we can shape the project deliberately rather than inherit an accidental architecture. The first web lookup confirms the public Trends interface exists, but its developer endpoint was not fetchable through the browser tool; I’m checking Google’s own support/documentation and practical reproducibility details before settling on whether API automation belongs in the MVP.
+
+Research Trends acquisition
+
+
+
+
+
+Fetched 4 resources
+
+Fetched 2 resources
+
+Read memory 
+
+
+
+Searched codebase for "Project files or dependencies about Google Trends, pytrends, time series acquisition, academic MVP", no results
+
+Read 
+
+Fetched 4 resources
+
+
+
+
+
+
+
+Fetched 4 resources
+
+Fetched 3 resources
+
+Fetched 2 resources
+
+
+
+Fetched 4 resources
+
+
+
+
+
+
+
+Fetched 4 resources
+
+Fetched 3 resources
+
+Fetched 3 resources
+
+Read memory
+
+Created memory file 
+
+The main acquisition decision is now fairly clear: the official API’s existence does not mean it is an available, dependable input for this assignment; public info still describes limited alpha access. Google’s CSV export can support custom terms, but any lifecycle comparison must keep the terms on a shared normalization scale, which changes how we should design the sample and features. I’m now shaping the recommendation around that constraint and will ask you to decide the few choices that materially affect the final architecture.
+
+
+
+Fetched 4 resources
+
+Read memory
+
+Read memory 
+
+I recommend a manually exported, immutable Trends input with a small Python pipeline and no database: it is auditable, easy to containerize, and avoids depending on an alpha API or an archived scraper. One methodological fork matters before I turn that into a concrete architecture: “time to peak” and a defensible pre-event baseline require an agreed event date per series; if we instead study terms without known event dates, I’d omit those labels and keep the metrics more descriptive.
+
+Analyzing your answers...
+
+Your choices point to a deliberately descriptive MVP: 5–8 series, a shared 3-year weekly export, and no event-anchored “time to peak” or pre-event baseline. I’d therefore measure peak timing/magnitude plus fixed post-peak snapshots, and report incomplete horizons explicitly rather than inventing a decay threshold; one remaining setting materially affects the meaning of every value: geography.
+
+Analyzing your answers...
+
+With geography set to the United States, I have enough to lay out a complete provisional design. I’m recording it only in the session planning notes for continuity; I will not create `docs/plan.md` or project files until you review and explicitly approve the architecture.
+
+Inserted into memory file 
+
+**Workspace**
+The repository is effectively empty: there are no project files or existing conventions to build on. I have not created `docs/plan.md` or implemented anything.
+
+**What The MVP Should Do**
+Turn a small, documented set of Google Trends exports into validated, cleaned, human-inspectable time series and a compact table of descriptive lifecycle features. The result should support comparisons *within the same Trends request* and make the limits of those comparisons explicit. It is a data-engineering pipeline, not a definitive measure of internet-wide attention.
+
+**Acquisition Recommendation**
+The practical choice for this assignment is Google Trends Explore’s built-in CSV export. It supports researcher-chosen terms, is available without paid services, and lets the project preserve exactly what it analyzed. Its tradeoff is manual collection: the export is reproducible as a fixed input, but retrieving the same query later may produce different sampled values.
+
+Other options are weaker fits:
+
+- **Official Trends API:** Google’s public announcement describes limited alpha access. I could not verify general availability or a dependable access path for this project. It offers consistently scaled data across requests, which would help a larger study, but I would not make the MVP depend on access that may not be granted.
+- **BigQuery public datasets:** Useful for Google’s published Top and Rising queries, but not a source for an arbitrary set of cultural terms.
+- **`pytrends`:** An unofficial interface to Trends, and its repository is archived. It may break or be throttled; I would not make it the academic project’s primary source.
+
+Google says its Trends index is based on sampled searches, normalized against total searches in the selected context, and scaled. A value is **relative search interest, not query volume**; a zero is not proof that nobody searched. Terms in one shared request can be compared as relative interest, but independently exported requests are normalized separately, so their 0–100 values should not be compared as if they were on one scale. Trends’ current help page describes comparisons of up to eight groups, but I recommend confirming that the live interface produces one export with each selected series before fixing the study set.
+
+Sources: [Google’s API alpha announcement](https://developers.google.com/search/blog/2025/07/trends-api), [CSV export guidance](https://support.google.com/trends/answer/4365538), [comparison guidance](https://support.google.com/trends/answer/4359550), [BigQuery dataset overview](https://support.google.com/trends/answer/12764470), [Trends methodology FAQ](https://support.google.com/trends/answer/4365533).
+
+**Provisional Architecture**
+I recommend starting with the choices you made: **5–8 series, United States, three years, weekly data, and descriptive term trajectories without curated event dates**.
+
+Keep the original CSV untouched, accompanied by a small YAML or JSON manifest. The manifest should record the export’s query URL, retrieval timestamp, geography, date range, category, search property, frequency, exact term or topic labels, series-to-column mapping, and a checksum. That metadata makes the transformation traceable and prevents the pipeline from guessing what each exported column means.
+
+The pipeline should ingest the export, parse its Google-specific layout, validate the file and manifest, convert it to tidy long form, run quality checks, calculate features, and write outputs plus a validation report. A suitable processed time-series table has one row per series and week, with fields such as `request_id`, `series_id`, `label`, `entity_type`, `date`, `interest_index`, `geography`, `frequency`, and `is_partial`.
+
+Use CSV for the cleaned time series and feature table, plus JSON for validation results. For a small fixed batch, a database or Parquet adds machinery without improving the core assignment. Keep raw exports under `data/raw/`, generated files under `data/processed/`, and tests under `tests/`. A small Python package, one Docker image, and a CLI are sufficient; Docker should run that same CLI against mounted input and output directories, with no background service.
+
+**Metrics And Validation**
+Because you chose trajectories without event dates, I would **not** call any metric “time to peak,” “pre-event baseline,” or “attention half-life.” Those names imply anchors or a decay model that the input does not provide. “Half of peak” is also a weak threshold when the series may have a nonzero background level.
+
+A defensible MVP feature table can include:
+
+- The observation window, number of valid weeks, global maximum index, and date of the earliest maximum.
+- The number of weeks tied at that maximum, so a plateau or repeated maximum is visible rather than presented as a uniquely timed peak.
+- Whole-window median interest, as a descriptive summary of that request’s relative index.
+- Mean interest over the **next 4, 12, and 26 complete weekly observations after the global peak**, with a corresponding ratio to the peak if desired. These fixed snapshots describe what followed; they do not claim a particular decay process. Return null when a full horizon is unavailable, rather than extrapolating.
+
+Preserve reported zeros; keep missing values missing; do not impute. Exclude a partial latest week from feature calculations while retaining the raw record or flag. Reject invalid dates, out-of-range scores, ambiguous column mappings, and conflicting duplicate observations. Identical duplicate rows can be collapsed with a warning. Don’t silently fill gaps: flag irregular weekly coverage, and don’t calculate a fixed-horizon feature if its observations are incomplete. For an all-zero series, report no detectable interest and leave the peak date undefined.
+
+**Testing And Operation**
+Provide `validate` and `run` CLI commands, clear warnings/errors, and a nonzero exit for invalid inputs. Unit tests should cover the export parser, schema/range checks, duplicates and gaps, partial weeks, tied and all-zero series, and complete versus incomplete post-peak horizons. An integration test should run the full pipeline on a small synthetic fixture and verify the output schemas and validation report. A manual smoke test should compare the cleaned values and peak dates with the original Trends chart and inspect zero/missing weeks and generated CSVs.
+
+**Limits And Scope**
+The study should consistently identify each input as either a literal **search term** or a Google **Topic**; they capture different things and should not be casually mixed. Weekly sampling suits multi-month persistence but smooths short viral spikes. Search wording, low-volume noise, sampling, geography, and normalization all constrain interpretation.
+
+Automated collection, cross-request calibration, manually curated event dates, secondary-peak/resurgence detection, forecasting or ML, a database, cloud deployment, and the future visualization experience should remain out of the MVP.
+
+Your selected defaults are recorded as a **provisional** session plan only. The remaining review choices are the actual 5–8 queries, whether they should be terms or Topics, and whether to include the raw exports in the eventual repository subject to course expectations and Google’s terms. Please tell me what you’d change or approve; I’ll wait for explicit approval before creating `docs/plan.md`.
+
+[STUDENT]
+User: I agree with the architecture and want to keep the MVP small. Before finalizing the plan, can you recommend whether this project should consistently use Search Terms or Topics, given that I want to compare 5–8 distinct cultural phenomena? Explain which choice produces the most interpretable trajectory analysis and how it affects what I can claim. I would prefer to use one entity type consistently if possible.
+
+[AGENT]
+GitHub Copilot: I recommend using Search Terms consistently for this MVP: they give you the clearest, auditable definition of each series, at the cost of narrowing every claim to the chosen search wording. I’ll verify Google’s current term-versus-Topic guidance and then fold that choice into the handoff architecture, including the exact wording of what the results can support.
+
+
+
+Fetched 2 resources
+
+Google’s own distinction points to a useful tradeoff: Topics better represent the *phenomenon* by grouping related searches, while Search Terms better represent a precisely specified phrase. For your stated research question, I’d now favor Topics if each chosen phenomenon has an unambiguous Topic, with a strict rule to exclude an item rather than mix in a Search Term as a fallback.
+
+Updated memory file 
+
+I recommend using **Google Trends Topics consistently**, provided every selected phenomenon has a clear, unambiguous Topic in Explore. Your question is about attention to *cultural phenomena*, not just interest in one spelling or phrase. Google says Topics group related searches around a concept or entity, including variants and languages, which better matches that research unit. [Google’s comparison of Search Terms and Topics](https://support.google.com/trends/answer/17309543?hl=en)
+
+That choice supports claims about **relative Google Search interest in the selected Google Trends Topics** over the chosen time and geography. It does *not* establish total public attention, absolute search volume, or that Google’s Topic grouping captures every relevant expression. Topic membership is less transparent than an entered phrase, so the project should record each displayed Topic label and entity description, and exclude ambiguous matches rather than quietly substituting a Search Term.
+
+Search Terms would be the better choice if you wanted to study specific wording. They are more explicit, but the claim narrows to the entered query and Trends’ matching behavior; related phrases, spelling variants, and synonyms may be missed. Either way, keep all series in one shared export/request so their relative index values are not independently normalized.
+
+I’ve updated the **provisional session plan** with the Topics-only recommendation and its caveats. I have not finalized `docs/plan.md`. Do you want the final architecture plan to adopt Topics-only, with exclusion rather than Search Term fallback when a clear Topic is unavailable?
+
+[STUDENT]
+User: Yes, let's adopt Topics-only for the MVP, with exclusion rather than Search Term fallback when a clear and unambiguous Topic is unavailable. I want the unit of analysis to remain consistent across all selected phenomena. Please document that this limits our candidate selection and that Google’s Topic grouping itself is a methodological limitation. Before finalizing `docs/plan.md`, I want to select the 5–8 cultural phenomena we will use.
+
+[AGENT]
+GitHub Copilot: Topics-only is now the agreed methodological rule: all selected series must be unambiguous Topics, and candidates without one are excluded rather than switched to Search Terms. Since the chosen three-year window begins around October 2023, I’m proposing phenomena whose major attention periods fall inside that span; I’ll keep each as a candidate pending your selection and later confirmation of its exact Topic in Explore.
+
+Updated memory file 
+
+Analyzing your answers...
+
+You’ve selected four so far: **Brat, Wicked, KPop Demon Hunters, and Labubu**. The set needs at least one more to meet the 5–8 target, so I’ll ask you to add from the remaining candidates or suggest a replacement; the Topic eligibility check remains a later acquisition step.
+
+Analyzing your answers...
+
+That gives us five, with your freeform entry read as **Love Island USA** (assuming the letters were transposed). I’ll record that exact set as the selected candidate cohort and keep Topic identity verification as an explicit acquisition gate, rather than treating the human-readable titles as guaranteed Trends entities.
+
+Updated memory file 
+
+Analyzing your answers...
+
+Confirmed: the fifth selection is **Love Island USA**. The cohort is now five; it is intentionally curated rather than representative, and Love Island’s recurring seasons mean we should describe post-peak snapshots as fixed-window observations, not as one uninterrupted decay curve. I’m marking the set confirmed and leaving live Topic disambiguation as a required collection check.
+
+Updated memory file 
+
+The selected five are **Brat**, **Wicked**, **KPop Demon Hunters**, **Labubu**, and **Love Island USA**. I’ve recorded the cohort and the Topics-only rule in the provisional architecture notes.
+
+This is a purposive set, not a representative sample. During collection, each phenomenon still needs a clear, correctly disambiguated Google Trends Topic, and all five must fit in one shared export. If a candidate has no suitable Topic, it should be replaced by a different phenomenon with a clear Topic, never by a Search Term. Love Island USA’s recurring seasons also mean its fixed post-peak summaries must not be presented as a single decay curve.
+
+I have not created or finalized `docs/plan.md`; the candidate set is selected, and exact Topic labels remain a collection-time verification step.
+
+[STUDENT]
+User: I approve the architecture and selected MVP scope. Please finalize and create `docs/plan.md` with the decisions we've made, including the five selected candidate phenomena and the requirement to verify their exact Google Trends Topic labels during data collection. Keep the implementation scoped to the MVP we've defined and clearly separate future work. Do not implement the project yet.
+
+[AGENT]
+GitHub Copilot: I’ll consolidate the approved decisions into the final actionable plan now, including the five-Topic cohort, exact-label verification gate, MVP tests, Docker/CLI, and explicit deferrals. I’ll keep the workspace untouched in this planning stage; the plan content will be presented for handoff.
+
+Read memory 
+
+The approved plan needs one important correction before it’s treated as final: it should no longer describe a pending cohort or refer to generic terms. I’m replacing the provisional notes with a Builder-ready plan that names the selected Topics, marks exact Topic identity and single-export feasibility as collection gates, and keeps the feature definitions and deferred scope precise.
+
+Updated memory file 
+
+Updated memory file 
+
+**Plan Ready**
+The approved architecture and scope are now consolidated in the session plan. **I could not create `docs/plan.md` in this session:** the active Plan-mode instructions prohibit workspace file edits. The repository remains untouched. The plan below is ready for a Builder handoff or for finalization in a mode that permits file creation.
+
+**Goal And Scope**
+Build a small Python pipeline that takes a fixed Google Trends CSV export, validates and cleans it, derives descriptive weekly features, and writes human-inspectable outputs. Use one export for all five Topics; do not build a dashboard, forecasting model, or automated scraper.
+
+**Study And Acquisition**
+Use Google Trends Explore’s manual CSV export with United States geography, Web Search, weekly aggregation, and a fixed three-year interval around 2023-10-01 to 2026-10-01. Before accepting data, verify that each candidate has a clear, correctly disambiguated **Topic** in Explore and record its exact displayed label and entity description. The selected candidates are:
+
+- Brat, 2024 album
+- Wicked, 2024 film
+- KPop Demon Hunters, 2025 film
+- Labubu, character/toy
+- Love Island USA, recurring reality TV series
+
+All five must be included together in one chart/export with identical settings. If one lacks a suitable Topic, ask the user to select a replacement phenomenon that does have one. Do not substitute a Search Term. If all five cannot be exported together, stop for a scope decision rather than combining separately normalized exports.
+
+The official Trends API was announced as a limited alpha, so do not depend on access unless it is verified. BigQuery’s public datasets focus on curated Top and Rising queries, not these arbitrary candidates. `pytrends` is unofficial and archived; it is not the acquisition method for this MVP.
+
+**Pipeline And Outputs**
+Preserve the downloaded CSV unchanged under `data/raw/`, alongside a manifest recording its checksum, retrieval time, query URL, geography, dates, category, property, frequency, and the mapping from each stable series ID to its exact Topic label and export column.
+
+The pipeline stages are: ingest raw input, parse the export, validate schema and manifest, convert to tidy long form, check data quality, calculate features, then write outputs and a validation report.
+
+Write a cleaned time-series CSV under `data/processed/`, with one row per Topic/week and fields for request ID, series ID, Topic label and description, entity type, date, interest index, geography, frequency, and partial-week status. Write a one-row-per-Topic feature CSV and a JSON validation report.
+
+Use CSV for inspectability; no database or Parquet is needed. Provide `validate` and `run` CLI commands. Package the CLI in a Docker image that runs against mounted input/output directories; no service or credentials are required. Suggested structure: `src/trends_pipeline/`, `data/raw/`, `data/processed/`, `reports/`, `tests/unit/`, `tests/integration/`, plus a root `Dockerfile`, `pyproject.toml`, and README. Keep runtime dependencies to pandas and PyYAML, with pytest for development.
+
+**Validation And Features**
+Fail on missing or ambiguous Topic mappings, invalid dates or scores, scores outside 0–100, conflicting duplicate Topic/date rows, missing required metadata, and unexpected cadence. Collapse identical duplicates only with a warning. Preserve zero as zero; keep blank values missing; do not impute or interpolate. Report gaps and partial edge weeks, and do not calculate a horizon that lacks complete observations.
+
+For each Topic, calculate coverage dates, observation count, global maximum, earliest date at that maximum, tie count, and whole-window median. Calculate mean interest for the 4, 12, and 26 complete weekly observations *after* the global peak, excluding the peak week. Return null and an incomplete flag if any required observation is unavailable. For all-zero series, flag no detectable indexed interest and leave peak date undefined.
+
+Do not claim “time to peak,” pre-event baseline, attention half-life, or decay rate: there are no independent event dates, and a percentage-of-peak threshold does not define a defensible decay measure here. Love Island USA has recurring seasons, so its fixed post-peak windows are observations, not a single-cycle decay curve.
+
+**Tests And Verification**
+Unit tests should cover the real CSV format, metadata/header/footer parsing, manifest mappings, score/date validation, blank versus zero, duplicates, gaps, partial weeks, all-zero data, tied peaks, and complete/incomplete post-peak horizons. An integration test should run a synthetic export through the full pipeline and assert outputs and schemas. A Docker smoke test should run that fixture in the container; automated tests must not require live Google access.
+
+For manual verification, compare the real export’s dates, Topic labels, row counts, and selected values or peaks against the Explore chart. Inspect zeros, blanks, gaps, partial weeks, generated CSVs, and the JSON report. Confirm the export and manifest describe the same single request.
+
+**Limitations And Future Work**
+Google Trends values are sampled, normalized relative search-interest indices, not search counts, audience size, or total public attention. Zero does not mean no searches; low-volume values can be noisy. Topic grouping is also a methodological limitation: Google’s Knowledge Graph grouping is not fully transparent and may include or omit variants. That limits the candidate pool and the claims; this five-case cohort is illustrative, not representative of internet culture.
+
+Defer API automation, scraping, cross-request calibration, event-date annotation, resurgence/local-peak classification, uncertainty modeling, forecasting, ML, clustering, databases, visualization/scrollytelling, and cloud deployment. Document attribution to Google Trends and the fact that transformations are reproducible against preserved inputs, while a future Google export may differ.
+
+===== TRANSCRIPT END =====

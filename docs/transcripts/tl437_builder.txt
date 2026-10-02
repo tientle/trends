@@ -1,0 +1,536 @@
+STUDENT_NAME: Tien Le
+NETID: tl437
+OPTION: 3
+ROLE: builder
+AGENT_TOOL: VSCode CoPilot
+REPOSITORY_B_URL: https://github.com/tientle/trends
+
+===== TRANSCRIPT START =====
+
+[STUDENT]
+User: You are the Builder for my `trends` project, which I am completing as the second repository for my graduate Data Engineering assignment.
+
+This is a NEW conversation. A separate Architect conversation has already been completed. The Architect developed an architecture with me, I reviewed its recommendations, made my own design decisions, and explicitly approved the final plan.
+
+Your job is to implement that approved plan. Do not redesign the project unless you discover a technical issue that prevents the approved architecture from working. If that happens, explain the issue and ask me before making a substantial architectural change.
+
+IMPORTANT FIRST STEP
+
+The Architect was operating in Plan mode and could not edit workspace files. Therefore docs/plan.md does not physically exist yet.
+
+Before implementing application code:
+
+1. Create docs/plan.md.
+2. Copy the approved Architect plan provided below into that file, preserving its decisions and scope.
+3. Show me that the file was created.
+4. Then inspect the repository and propose the implementation sequence you will follow.
+
+IMPLEMENTATION EXPECTATIONS
+
+Implement the approved MVP described in docs/plan.md.
+
+As Builder, you may:
+- create and edit project files
+- create the Python package and CLI
+- create tests and synthetic fixtures
+- create Dockerfile and .dockerignore
+- create/update README documentation
+- install required dependencies
+- run formatting/tests
+- build and run Docker
+- explain implementation decisions
+
+Do NOT:
+- add forecasting, machine learning, clustering, dashboards, or visualization
+- automate Google Trends collection unless the approved plan requires it
+- replace the manual CSV acquisition approach
+- introduce unnecessary infrastructure
+- silently change the approved metric definitions
+- fabricate real Google Trends data
+- claim that synthetic test data is real data
+
+The real Google Trends export has not been collected yet. Build the pipeline so that automated tests use synthetic fixtures and do not require internet access.
+
+When real data becomes necessary, stop and tell me exactly what I need to export from Google Trends and where to place it. I will perform that acquisition myself.
+
+STUDENT OWNERSHIP
+
+I need to understand and review the implementation rather than simply accept generated code.
+
+As you work:
+- explain important implementation decisions
+- point out places where you had to interpret the Architect plan
+- tell me what each major file is responsible for
+- identify assumptions you make
+- surface meaningful choices to me rather than silently choosing when multiple approaches would materially affect behavior
+
+Run the automated tests when appropriate, but do NOT perform or claim my required manual smoke test for me. I will do the manual smoke test myself after the Builder stage.
+
+Once implementation is complete, give me:
+1. a concise summary of what you implemented
+2. files created/modified
+3. automated test results
+4. Docker build/run results
+5. anything I need to review or correct
+6. exact instructions for my manual smoke test
+7. any known limitations or deviations from docs/plan.md
+
+Do not begin the Tester role. Tester will be a separate fresh AI conversation.
+
+===== APPROVED ARCHITECT PLAN =====
+
+**Goal And Scope**
+Build a small Python pipeline that takes a fixed Google Trends CSV export, validates and cleans it, derives descriptive weekly features, and writes human-inspectable outputs. Use one export for all five Topics; do not build a dashboard, forecasting model, or automated scraper.
+
+**Study And Acquisition**
+Use Google Trends Explore’s manual CSV export with United States geography, Web Search, weekly aggregation, and a fixed three-year interval around 2023-10-01 to 2026-10-01. Before accepting data, verify that each candidate has a clear, correctly disambiguated **Topic** in Explore and record its exact displayed label and entity description. The selected candidates are:
+
+- Brat, 2024 album
+- Wicked, 2024 film
+- KPop Demon Hunters, 2025 film
+- Labubu, character/toy
+- Love Island USA, recurring reality TV series
+
+All five must be included together in one chart/export with identical settings. If one lacks a suitable Topic, ask the user to select a replacement phenomenon that does have one. Do not substitute a Search Term. If all five cannot be exported together, stop for a scope decision rather than combining separately normalized exports.
+
+The official Trends API was announced as a limited alpha, so do not depend on access unless it is verified. BigQuery’s public datasets focus on curated Top and Rising queries, not these arbitrary candidates. `pytrends` is unofficial and archived; it is not the acquisition method for this MVP.
+
+**Pipeline And Outputs**
+Preserve the downloaded CSV unchanged under `data/raw/`, alongside a manifest recording its checksum, retrieval time, query URL, geography, dates, category, property, frequency, and the mapping from each stable series ID to its exact Topic label and export column.
+
+The pipeline stages are: ingest raw input, parse the export, validate schema and manifest, convert to tidy long form, check data quality, calculate features, then write outputs and a validation report.
+
+Write a cleaned time-series CSV under `data/processed/`, with one row per Topic/week and fields for request ID, series ID, Topic label and description, entity type, date, interest index, geography, frequency, and partial-week status. Write a one-row-per-Topic feature CSV and a JSON validation report.
+
+Use CSV for inspectability; no database or Parquet is needed. Provide `validate` and `run` CLI commands. Package the CLI in a Docker image that runs against mounted input/output directories; no service or credentials are required. Suggested structure: `src/trends_pipeline/`, `data/raw/`, `data/processed/`, `reports/`, `tests/unit/`, `tests/integration/`, plus a root `Dockerfile`, `pyproject.toml`, and README. Keep runtime dependencies to pandas and PyYAML, with pytest for development.
+
+**Validation And Features**
+Fail on missing or ambiguous Topic mappings, invalid dates or scores, scores outside 0–100, conflicting duplicate Topic/date rows, missing required metadata, and unexpected cadence. Collapse identical duplicates only with a warning. Preserve zero as zero; keep blank values missing; do not impute or interpolate. Report gaps and partial edge weeks, and do not calculate a horizon that lacks complete observations.
+
+For each Topic, calculate coverage dates, observation count, global maximum, earliest date at that maximum, tie count, and whole-window median. Calculate mean interest for the 4, 12, and 26 complete weekly observations *after* the global peak, excluding the peak week. Return null and an incomplete flag if any required observation is unavailable. For all-zero series, flag no detectable indexed interest and leave peak date undefined.
+
+Do not claim “time to peak,” pre-event baseline, attention half-life, or decay rate: there are no independent event dates, and a percentage-of-peak threshold does not define a defensible decay measure here. Love Island USA has recurring seasons, so its fixed post-peak windows are observations, not a single-cycle decay curve.
+
+**Tests And Verification**
+Unit tests should cover the real CSV format, metadata/header/footer parsing, manifest mappings, score/date validation, blank versus zero, duplicates, gaps, partial weeks, all-zero data, tied peaks, and complete/incomplete post-peak horizons. An integration test should run a synthetic export through the full pipeline and assert outputs and schemas. A Docker smoke test should run that fixture in the container; automated tests must not require live Google access.
+
+For manual verification, compare the real export’s dates, Topic labels, row counts, and selected values or peaks against the Explore chart. Inspect zeros, blanks, gaps, partial weeks, generated CSVs, and the JSON report. Confirm the export and manifest describe the same single request.
+
+**Limitations And Future Work**
+Google Trends values are sampled, normalized relative search-interest indices, not search counts, audience size, or total public attention. Zero does not mean no searches; low-volume values can be noisy. Topic grouping is also a methodological limitation: Google’s Knowledge Graph grouping is not fully transparent and may include or omit variants. That limits the candidate pool and the claims; this five-case cohort is illustrative, not representative of internet culture.
+
+Defer API automation, scraping, cross-request calibration, event-date annotation, resurgence/local-peak classification, uncertainty modeling, forecasting, ML, clustering, databases, visualization/scrollytelling, and cloud deployment. Document attribution to Google Trends and the fact that transformations are reproducible against preserved inputs, while a future Google export may differ.
+
+===== END APPROVED ARCHITECT PLAN =====
+
+[AGENT]
+GitHub Copilot: I’ll first create the approved plan verbatim at `docs/plan.md`, then confirm it exists before inspecting the otherwise-empty workspace and laying out the implementation sequence.
+
+Apply Patch
+
+Generating patch (46 lines) in 
+
+
+```
+
+```
+`plan.md` has been created with the approved scope and decisions; I’m checking the new file and the repository contents now, then I’ll state a concrete build order before touching application code.
+
+Read 
+
+Read 
+
+The repository currently contains only `.git` and the newly created `plan.md`. I’ll build in this order: define the YAML manifest and data contract; implement the Google CSV parser/validation and tidy transformation; add feature calculations plus reporting and CLI; then synthetic unit/integration fixtures, Docker, README, and automated checks. My working interpretation is that the manifest will be YAML (consistent with the approved PyYAML runtime) and will explicitly map every stable series ID to one unambiguous export column; I’ll make the parser handle Google’s metadata/header/footer structure without relying on a real export, and pause for your real CSV/Explore mapping rather than inventing it.
+
+Created 6 todos
+
+Configuring a Python Environment
+Completed with input: {
+  "resourcePath": "/Users/tienle/Documents/Code/2026/Duke/Fall 2026/Data Engineering | IDS 706/trends"
+}
+
+Creating a Virtual Environment
+Completed with input: {
+  "resourcePath": "/Users/tienle/Documents/Code/2026/Duke/Fall 2026/Data Engineering | IDS 706/trends"
+}
+
+I’m starting with the one explicit contract the pipeline depends on: a YAML manifest that records the single request, the raw-file checksum, and one-to-one series/export-column mappings. That boundary is testable independently and lets us reject ambiguity before parsing or calculating anything.
+
+Generating patch (245 lines) in , , , 
+
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+The manifest contract and focused tests are in place. Next I’m installing the declared Python dependencies, then I’ll run only those manifest tests first; that should expose contract/schema defects before the parser work begins.
+
+Installing packages PyYAML>=6.0,<7, pandas>=2.2,<3, pytest>=8,<9 in Python 3.13.5
+Completed with input: {
+  "packageList": [
+    "pandas>=2.2,<3",
+    "PyYAML>=6.0,<7",
+    "pytest>=8,<9"
+  ],
+  "resourcePath": "/Users/tienle/Documents/Code/2026/Duke/Fall 2026/Data Engineering | IDS 706/trends"
+}
+
+Ran terminal command:  /usr/local/bin/python3 -m pytest tests/unit/test_manifest.py -q
+
+The focused test command couldn’t start because the configured `python3` doesn’t see `pytest`, despite the package installer reporting success. I’m checking the selected interpreter/package environment and will rerun the exact same test through the environment’s actual command.
+
+Fetching Python environment information
+Completed with input: {
+  "resourcePath": "/Users/tienle/Documents/Code/2026/Duke/Fall 2026/Data Engineering | IDS 706/trends"
+}
+
+Fetching Python executable information for Python 3.13.5
+Completed with input: {
+  "resourcePath": "/Users/tienle/Documents/Code/2026/Duke/Fall 2026/Data Engineering | IDS 706/trends"
+}
+
+Ran terminal command:  command -v pytest && pytest --version && /usr/local/bin/python3 -m pip --version && /usr/local/bin/python3 -m pip show pytest
+
+Ran terminal command:  /usr/local/bin/python3 -m pip show pytest
+
+Ran terminal command:  command -v python3
+
+The mismatch is now clear: the workspace shell resolves Python to `python3`, while the earlier setup pointed at `python3`. I’ll align the configured environment to the interpreter the project shell actually uses, then repeat the focused tests.
+
+Configuring a Python Environment
+Completed with input: {
+  "pythonPath": "/opt/homebrew/bin/python3",
+  "resourcePath": "/Users/tienle/Documents/Code/2026/Duke/Fall 2026/Data Engineering | IDS 706/trends"
+}
+
+Fetching Python environment information
+Completed with input: {
+  "resourcePath": "/Users/tienle/Documents/Code/2026/Duke/Fall 2026/Data Engineering | IDS 706/trends"
+}
+
+Ran terminal command:  /opt/homebrew/bin/python3 -m pytest tests/unit/test_manifest.py -q
+
+That interpreter still lacks the test runner, so the package installer and terminal environment are not yet aligned. I’ll reapply the declared dependencies after selecting the shell’s Python and verify the import in that same interpreter before running tests.
+
+Installing packages PyYAML>=6.0,<7, pandas>=2.2,<3, pytest>=8,<9 in Python 3.14.2 (homebrew)
+Completed with input: {
+  "packageList": [
+    "pandas>=2.2,<3",
+    "PyYAML>=6.0,<7",
+    "pytest>=8,<9"
+  ],
+  "resourcePath": "/Users/tienle/Documents/Code/2026/Duke/Fall 2026/Data Engineering | IDS 706/trends"
+}
+
+Ran terminal command:  /opt/homebrew/bin/python3 -m pytest tests/unit/test_manifest.py -q
+
+The Python package tool keeps reporting success, but the selected shell interpreter still cannot import pytest; I’ve isolated this to a tooling/environment mismatch rather than project code. I’m using that interpreter’s own package manager as a fallback so the tests can run in the same environment used for Docker checks.
+
+Ran terminal command:  /opt/homebrew/bin/python3 -m pip install 'pandas>=2.2,<3' 'PyYAML>=6.0,<7' 'pytest>=8,<9'
+
+The system Python is Homebrew-managed and correctly blocks global installs (PEP 668), so I won’t override that safeguard. I’ll create a project-local `.venv`, configure it as the workspace environment, and install/test there; this also gives the repo a reproducible local setup.
+
+Ran terminal command:  /opt/homebrew/bin/python3 -m venv .venv
+
+Configuring a Python Environment
+Completed with input: {
+  "pythonPath": "/Users/tienle/Documents/Code/2026/Duke/Fall 2026/Data Engineering | IDS 706/trends/.venv/bin/python",
+  "resourcePath": "/Users/tienle/Documents/Code/2026/Duke/Fall 2026/Data Engineering | IDS 706/trends"
+}
+
+Installing packages PyYAML>=6.0,<7, pandas>=2.2,<3, pytest>=8,<9 in .venv (3.14.2)
+Completed with input: {
+  "packageList": [
+    "pandas>=2.2,<3",
+    "PyYAML>=6.0,<7",
+    "pytest>=8,<9"
+  ],
+  "resourcePath": "/Users/tienle/Documents/Code/2026/Duke/Fall 2026/Data Engineering | IDS 706/trends"
+}
+
+Ran terminal command:  "/Users/tienle/Documents/Code/2026/Duke/Fall 2026/Data Engineering | IDS 706/trends/.venv/bin/python" -m pytest tests/unit/test_manifest.py -q
+
+The manifest boundary is now validated: the tests pass, and the local `.venv` resolves the machine’s Homebrew Python mismatch without touching global packages. One meaningful interpretation for the next slice: a post-peak window will count only exact consecutive weekly dates with nonblank values and no partial-week rows; it will not skip missing weeks to find later values.
+
+Starting: *Implement parser and validation* (2/6)
+
+I’m implementing the export boundary now: a small CSV parser will preserve Google’s preamble metadata and stop at the actual weekly table, while validation will enforce the manifest’s exact columns, score/date rules, duplicate policy, and weekly cadence. The result becomes tidy rows with blank values still missing, explicit zeros intact, and partial edge weeks marked.
+
+Generating patch (334 lines) in , , 
+
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+
+Ran terminal command:  "/Users/tienle/Documents/Code/2026/Duke/Fall 2026/Data Engineering | IDS 706/trends/.venv/bin/python" -m pytest tests/unit/test_csv_validation.py tests/unit/test_manifest.py -q
+
+The first parser/validation run found a test expectation issue, not a pipeline defect: tidy rows are emitted series-by-series, and pandas represents missing numeric values as `NaN` rather than Python `None`. I’m correcting the assertion to check the actual blank-value contract, then rerunning the same focused tests.
+
+Generating patch (13 lines) in 
+
+
+```
+
+```
+
+
+Ran terminal command:  "/Users/tienle/Documents/Code/2026/Duke/Fall 2026/Data Engineering | IDS 706/trends/.venv/bin/python" -m pytest tests/unit/test_csv_validation.py tests/unit/test_manifest.py -q
+
+Generating patch (13 lines) in 
+
+
+```
+
+```
+
+
+Ran terminal command:  "/Users/tienle/Documents/Code/2026/Duke/Fall 2026/Data Engineering | IDS 706/trends/.venv/bin/python" -m pytest tests/unit/test_csv_validation.py tests/unit/test_manifest.py -q
+
+The CSV ingestion slice now passes all 12 focused tests. It parses the Google preamble/footer, requires an exact manifest-to-export column match, rejects bad scores/dates/conflicting duplicates, reports gaps, and retains blank/zero distinction; next I’m adding checksum-bound pipeline execution, feature summaries, and the `validate`/`run` CLI.
+
+Starting: *Add features and CLI outputs* (3/6)
+
+For feature interpretation, the global peak includes every valid observation, but each post-peak horizon checks the next exact calendar weeks and requires nonblank, non-partial rows; missing weeks are never skipped. I’m encoding the all-zero case as `global_max=0`, undefined peak/tie count, and incomplete post-peak windows, then testing both complete windows and a deliberately missing week.
+
+Generating patch (143 lines) in , 
+
+
+```
+
+```
+
+```
+
+```
+
+
+Ran terminal command:  "/Users/tienle/Documents/Code/2026/Duke/Fall 2026/Data Engineering | IDS 706/trends/.venv/bin/python" -m pytest tests/unit/test_features.py -q
+
+The feature tests confirm the peak and horizon behavior; one expected median was miscomputed in the test (`[100, 1..26]` has median 14). I’m fixing that expected value and rerunning the feature tests before adding the CLI wrapper.
+
+Generating patch (6 lines) in 
+
+
+```
+
+```
+
+
+Ran terminal command:  "/Users/tienle/Documents/Code/2026/Duke/Fall 2026/Data Engineering | IDS 706/trends/.venv/bin/python" -m pytest tests/unit/test_features.py -q
+
+All four focused feature tests now pass, including tied peaks, all-zero handling, incomplete horizons, and exclusion of partial post-peak weeks. I’m wiring those functions into a checksum-verified pipeline and CLI next; the report will distinguish validation errors from warnings, and successful `run` will write the tidy CSV, feature CSV, and JSON report without altering the raw export.
+
+Generating patch (153 lines) in , 
+
+
+```
+
+```
+
+```
+
+```
+
+
+Ran terminal command:  "/Users/tienle/Documents/Code/2026/Duke/Fall 2026/Data Engineering | IDS 706/trends/.venv/bin/python" -m pytest tests/unit -q
+
+The orchestration layer is in place and all 16 current unit tests pass. It verifies the raw SHA-256 before reading, uses only the manifest-bound input, and writes outputs only after successful validation; I’m adding a clearly labeled five-series synthetic integration fixture now so end-to-end and container checks never depend on Google or pretend to be real data.
+
+Starting: *Build synthetic test coverage* (4/6)
+
+Generating patch (129 lines) in , , 
+
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+
+Ran terminal command:  shasum -a 256 tests/fixtures/synthetic/trends.csv
+
+Generating patch (6 lines) in 
+
+
+```
+
+```
+
+
+Ran terminal command:  "/Users/tienle/Documents/Code/2026/Duke/Fall 2026/Data Engineering | IDS 706/trends/.venv/bin/python" -m pytest tests/integration/test_pipeline.py -q
+
+The synthetic end-to-end tests now pass, including five mapped synthetic series, output schemas, missing values, and checksum mismatch rejection. I’m moving to packaging and handoff: Docker will accept mounted input/output paths, and the README plus manifest template will make it explicit that the real Topic labels and export remain yours to verify and acquire.
+
+Starting: *Add Docker and usage docs* (5/6)
+
+Generating patch (189 lines) in , , , , 
+
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+
+```
+Packaging and handoff files are added, including a five-entry manifest template with explicit placeholders for the exact Explore labels (so nothing is guessed) and a Docker smoke script mounting only synthetic data. I’m running that smoke script now; it will tell us whether Docker is available and, if so, exercise the actual built image end to end.
+
+Ran terminal command:  bash scripts/docker-smoke-test.sh
+
+The container build and synthetic Docker run both succeeded. Before the final full suite, I’m tightening one meaningful metadata check: the export’s `Time range` preamble should agree with the manifest’s fixed dates when Google includes it, rather than trusting only the manifest checksum; I’ll test that mismatch explicitly, then exercise both CLI commands.
+
+Generating patch (55 lines) in , 
+
+
+```
+
+```
+
+```
+
+```
+
+
+Ran terminal command:  "/Users/tienle/Documents/Code/2026/Duke/Fall 2026/Data Engineering | IDS 706/trends/.venv/bin/python" -m pytest tests/unit/test_csv_validation.py -q
+
+Generating patch (9 lines) in 
+
+
+```
+
+```
+
+
+Ran terminal command:  "/Users/tienle/Documents/Code/2026/Duke/Fall 2026/Data Engineering | IDS 706/trends/.venv/bin/python" -m pytest tests/unit/test_csv_validation.py -q
+
+The new date-range check passes for both ISO and Google-style month-name ranges, and the parser remains compatible with the declared Python 3.11 minimum. I’m adding a small CLI-level test now so `validate` and `run` are verified as user-facing commands, not just as internal functions.
+
+Generating patch (83 lines) in 
+
+
+```
+
+```
+
+
+Ran terminal command:  "/Users/tienle/Documents/Code/2026/Duke/Fall 2026/Data Engineering | IDS 706/trends/.venv/bin/python" -m pytest tests/integration/test_cli.py -q
+
+Both CLI paths now pass direct integration tests, including a nonzero validation exit and JSON failure report when the checksum is wrong. The handoff also now checks any exported date-range metadata against the manifest; I’m at final verification: full automated suite, Docker rebuild/smoke, and workspace diagnostics.
+
+Continue to iterate?
+[object Object]
+
+Made changes.
+
+[STUDENT]
+User: @agent Continue: "Continue to iterate?"
+
+[AGENT]
+GitHub Copilot: Starting: *Run checks and report results* (6/6)
+
+Ran terminal command:  "/Users/tienle/Documents/Code/2026/Duke/Fall 2026/Data Engineering | IDS 706/trends/.venv/bin/python" -m pytest -q
+
+Ran terminal command:  bash scripts/docker-smoke-test.sh
+
+Checked , no problems found
+
+The full suite passes (21 tests), the Docker image rebuilds and processes the synthetic fixture, and editor diagnostics are clear. One last scope guard is worth adding before I close: the approved study is specifically a five-Topic cohort, so pipeline execution should reject a manifest with fewer or more than five mappings rather than silently treating it as a valid study.
+
+Generating patch (34 lines) in , 
+
+
+```
+
+```
+
+```
+
+```
+
+
+Ran terminal command:  "/Users/tienle/Documents/Code/2026/Duke/Fall 2026/Data Engineering | IDS 706/trends/.venv/bin/python" -m pytest tests/integration/test_pipeline.py -q
+
+Ran terminal command:  "/Users/tienle/Documents/Code/2026/Duke/Fall 2026/Data Engineering | IDS 706/trends/.venv/bin/python" -m pytest -q
+
+Ran terminal command:  bash scripts/docker-smoke-test.sh
+
+Checked , no problems found
+
+Final verification is green: 22 automated tests pass, the final Docker build and container run pass against the synthetic five-series fixture, and Pylance reports no errors. I’m checking the worktree once so I can report the exact created files and ensure the project-local environment/test artifacts aren’t accidentally part of the deliverable.
+
+Ran terminal command:  git status --short --untracked-files=normal
+
+Completed: *Run checks and report results* (6/6)
+
+**Implemented**
+Created `plan.md` with the approved plan before starting application code. The pipeline now parses and validates a Google Trends CSV against a YAML manifest, checks the raw file’s SHA-256, creates tidy weekly rows, calculates the approved per-Topic features, and provides `validate` and `run` commands.
+
+Key implementation choices: YAML is used for the manifest, and pipeline runs require exactly five mapped Topics. Post-peak windows require the next consecutive weekly observations to be present, nonblank, and not partial; missing weeks are not skipped or imputed. All-zero series have no defined peak.
+
+**Files**
+- Packaging and instructions: `pyproject.toml`, `README.md`, `Dockerfile`, `.dockerignore`
+- Pipeline: `manifest.py`, `csv_export.py`, `validation.py`, `features.py`, `pipeline.py`, `cli.py`, `__init__.py`
+- Acquisition template: `manifest.example.yaml`
+- Automated coverage: `test_manifest.py`, `test_csv_validation.py`, `test_features.py`, `test_pipeline.py`, `test_cli.py`, and the clearly labeled synthetic `trends.csv` and `manifest.yaml`
+- Container check: `docker-smoke-test.sh`
+
+**Verification**
+- Automated tests: **22 passed**.
+- Docker: **build and synthetic container run passed**. This was an automated Docker smoke test, not your manual data-verification smoke test.
+- Pylance: no errors found.
+
+**Your Manual Smoke Test**
+The real Google Trends export has not been collected or included. In Explore, verify a correctly disambiguated **Topic** and its displayed description for Brat (2024 album), Wicked (2024 film), KPop Demon Hunters (2025 film), Labubu (character/toy), and Love Island USA (recurring series). Use United States, Web Search, weekly aggregation, and the interval **2023-10-01 through 2026-10-01**. Include all five in one chart and one export. Don’t substitute Search Terms or combine separate exports; stop for a scope decision if all five cannot be exported together.
+
+Save the downloaded CSV unchanged as `data/raw/trends.csv`. Copy `manifest.example.yaml` to `data/raw/manifest.yaml`; fill in the retrieval time, query URL, exact Explore labels and descriptions, exact CSV column headers, then enter the checksum from:
+
+```sh
+shasum -a 256 data/raw/trends.csv
+```
+
+Run `trends-pipeline validate --input data/raw/trends.csv --manifest data/raw/manifest.yaml`, then `trends-pipeline run` with those inputs. For your manual check, compare dates, labels, row counts, selected values or peaks, blanks, zeros, gaps, partial weeks, and the outputs against Explore; confirm the manifest describes that same single request.
+
+**Remaining Review**
+No known deviations from the approved plan. The actual Google export format has not yet been checked; automated tests use synthetic data only. The candidate Topic disambiguations and manifest values remain for you to verify and fill in.
+
+Made changes.
