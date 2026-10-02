@@ -151,7 +151,7 @@ Google Trends values are sampled, normalized relative search-interest indices, n
 
 ## AI-Assisted Development Workflow
 
-This project was completed using the new-project option and an Architect → Builder → Tester workflow. I used each AI role for a different stage of development while independently reviewing methodological and technical decisions.
+This project was completed using **Option 3: Create a New Project** and an Architect → Builder → Tester workflow. I used each AI role for a different stage of development while independently reviewing methodological and technical decisions.
 
 ### Architect
 
