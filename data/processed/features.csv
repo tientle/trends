@@ -1,0 +1,6 @@
+request_id,series_id,topic_label,topic_description,entity_type,coverage_start,coverage_end,observation_count,global_max,peak_date,peak_tie_count,whole_window_median,has_detectable_interest,post_peak_mean_4,post_peak_4_complete,post_peak_mean_12,post_peak_12_complete,post_peak_mean_26,post_peak_26_complete
+entertainment_topics_us_2025_2026,kpop_demon_hunters_2025,KPop Demon Hunters,2025 film,film,2025-09-28,2026-09-27,53,28.0,2025-10-26,1,6.0,True,14.5,True,12.083333333333334,True,9.423076923076923,True
+entertainment_topics_us_2025_2026,love_island,Love Island,Reality show,reality_tv_series,2025-09-28,2026-09-27,53,57.0,2026-06-07,1,2.0,True,41.5,True,20.583333333333332,True,,False
+entertainment_topics_us_2025_2026,spider_man_brand_new_day_2026,Spider-Man: Brand New Day,2026 film,film,2025-09-28,2026-09-27,53,100.0,2026-07-26,1,2.0,True,44.75,True,,False,,False
+entertainment_topics_us_2025_2026,obsession_2025,Obsession,2025 film,film,2025-09-28,2026-09-27,53,65.0,2026-05-24,1,0.0,True,40.0,True,27.166666666666668,True,,False
+entertainment_topics_us_2025_2026,heated_rivalry,Heated Rivalry,Television series,television_series,2025-09-28,2026-09-27,53,28.0,2026-01-11,1,2.0,True,13.25,True,7.75,True,4.8076923076923075,True

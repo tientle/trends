@@ -1,0 +1,2 @@
+[console_scripts]
+trends-pipeline = trends_pipeline.cli:main

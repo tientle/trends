@@ -1,0 +1,39 @@
+request:
+  request_id: REPLACE_WITH_A_STABLE_REQUEST_ID
+  retrieved_at: "REPLACE_WITH_ISO8601_TIMESTAMP"
+  query_url: "REPLACE_WITH_THE_SINGLE_GOOGLE_TRENDS_EXPLORE_URL"
+  geography: US
+  start_date: "2023-10-01"
+  end_date: "2026-10-01"
+  category: All categories
+  property: Web Search
+  frequency: weekly
+raw:
+  file: trends.csv
+  sha256: 0000000000000000000000000000000000000000000000000000000000000000
+series:
+  - series_id: brat_2024
+    topic_label: "REPLACE_WITH_EXACT_EXPLORE_TOPIC_LABEL"
+    topic_description: "REPLACE_WITH_ENTITY_DESCRIPTION_SHOWN_IN_EXPLORE"
+    entity_type: album
+    export_column: "REPLACE_WITH_EXACT_CSV_COLUMN_HEADER"
+  - series_id: wicked_2024
+    topic_label: "REPLACE_WITH_EXACT_EXPLORE_TOPIC_LABEL"
+    topic_description: "REPLACE_WITH_ENTITY_DESCRIPTION_SHOWN_IN_EXPLORE"
+    entity_type: film
+    export_column: "REPLACE_WITH_EXACT_CSV_COLUMN_HEADER"
+  - series_id: kpop_demon_hunters_2025
+    topic_label: "REPLACE_WITH_EXACT_EXPLORE_TOPIC_LABEL"
+    topic_description: "REPLACE_WITH_ENTITY_DESCRIPTION_SHOWN_IN_EXPLORE"
+    entity_type: film
+    export_column: "REPLACE_WITH_EXACT_CSV_COLUMN_HEADER"
+  - series_id: labubu
+    topic_label: "REPLACE_WITH_EXACT_EXPLORE_TOPIC_LABEL"
+    topic_description: "REPLACE_WITH_ENTITY_DESCRIPTION_SHOWN_IN_EXPLORE"
+    entity_type: character_or_toy
+    export_column: "REPLACE_WITH_EXACT_CSV_COLUMN_HEADER"
+  - series_id: love_island_usa
+    topic_label: "REPLACE_WITH_EXACT_EXPLORE_TOPIC_LABEL"
+    topic_description: "REPLACE_WITH_ENTITY_DESCRIPTION_SHOWN_IN_EXPLORE"
+    entity_type: recurring_reality_tv_series
+    export_column: "REPLACE_WITH_EXACT_CSV_COLUMN_HEADER"

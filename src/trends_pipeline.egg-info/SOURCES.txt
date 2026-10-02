@@ -1,0 +1,15 @@
+README.md
+pyproject.toml
+src/trends_pipeline/__init__.py
+src/trends_pipeline/cli.py
+src/trends_pipeline/csv_export.py
+src/trends_pipeline/features.py
+src/trends_pipeline/manifest.py
+src/trends_pipeline/pipeline.py
+src/trends_pipeline/validation.py
+src/trends_pipeline.egg-info/PKG-INFO
+src/trends_pipeline.egg-info/SOURCES.txt
+src/trends_pipeline.egg-info/dependency_links.txt
+src/trends_pipeline.egg-info/entry_points.txt
+src/trends_pipeline.egg-info/requires.txt
+src/trends_pipeline.egg-info/top_level.txt

@@ -1,0 +1,39 @@
+request:
+  request_id: synthetic-request-001
+  retrieved_at: "2026-10-01T12:00:00Z"
+  query_url: https://example.invalid/synthetic-fixture
+  geography: US
+  start_date: "2023-10-01"
+  end_date: "2023-10-28"
+  category: All categories
+  property: Web Search
+  frequency: weekly
+raw:
+  file: trends.csv
+  sha256: 8913da0a25a65f11bd318672a936ed21a0ac7aabe3ec6b6a0b6f5743f40d4c81
+series:
+  - series_id: synthetic_1
+    topic_label: Synthetic Topic 1
+    topic_description: Synthetic test fixture; not Google Trends data
+    entity_type: synthetic
+    export_column: Synthetic Topic 1
+  - series_id: synthetic_2
+    topic_label: Synthetic Topic 2
+    topic_description: Synthetic test fixture; not Google Trends data
+    entity_type: synthetic
+    export_column: Synthetic Topic 2
+  - series_id: synthetic_3
+    topic_label: Synthetic Topic 3
+    topic_description: Synthetic test fixture; not Google Trends data
+    entity_type: synthetic
+    export_column: Synthetic Topic 3
+  - series_id: synthetic_4
+    topic_label: Synthetic Topic 4
+    topic_description: Synthetic test fixture; not Google Trends data
+    entity_type: synthetic
+    export_column: Synthetic Topic 4
+  - series_id: synthetic_5
+    topic_label: Synthetic Topic 5
+    topic_description: Synthetic test fixture; not Google Trends data
+    entity_type: synthetic
+    export_column: Synthetic Topic 5

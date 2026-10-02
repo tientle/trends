@@ -1,0 +1,71 @@
+{
+  "valid": true,
+  "request": {
+    "request_id": "entertainment_topics_us_2025_2026",
+    "retrieved_at": "2026-10-01T13:05:00-04:00",
+    "query_url": "https://trends.google.com/explore?geo=US&date=2025-10-01%202026-10-01&q=%2Fg%2F11kpd0b0g3%2C%2Fg%2F11f8fyyn_d%2C%2Fg%2F11s8hg4517%2C%2Fg%2F11xw6qrpdp%2C%2Fg%2F11y036bwq0",
+    "geography": "US",
+    "start_date": "2025-10-01",
+    "end_date": "2026-10-01",
+    "category": "All categories",
+    "property": "Web Search",
+    "frequency": "weekly",
+    "series": [
+      {
+        "series_id": "kpop_demon_hunters_2025",
+        "topic_label": "KPop Demon Hunters",
+        "topic_description": "2025 film",
+        "entity_type": "film",
+        "export_column": "KPop Demon Hunters"
+      },
+      {
+        "series_id": "love_island",
+        "topic_label": "Love Island",
+        "topic_description": "Reality show",
+        "entity_type": "reality_tv_series",
+        "export_column": "Love Island"
+      },
+      {
+        "series_id": "spider_man_brand_new_day_2026",
+        "topic_label": "Spider-Man: Brand New Day",
+        "topic_description": "2026 film",
+        "entity_type": "film",
+        "export_column": "Spider-Man: Brand New Day"
+      },
+      {
+        "series_id": "obsession_2025",
+        "topic_label": "Obsession",
+        "topic_description": "2025 film",
+        "entity_type": "film",
+        "export_column": "Obsession"
+      },
+      {
+        "series_id": "heated_rivalry",
+        "topic_label": "Heated Rivalry",
+        "topic_description": "Television series",
+        "entity_type": "television_series",
+        "export_column": "Heated Rivalry"
+      }
+    ]
+  },
+  "input": {
+    "file": "trends.csv",
+    "sha256": "91c66199637ce4aba8a71cc19e668e08d8e6de409ff473e827495be72aad2788"
+  },
+  "quality": {
+    "date_start": "2025-09-28",
+    "date_end": "2026-09-27",
+    "weekly_rows": 53,
+    "gap_weeks": 0,
+    "partial_week_count": 2,
+    "missing_values_by_series": {
+      "kpop_demon_hunters_2025": 0,
+      "love_island": 0,
+      "spider_man_brand_new_day_2026": 0,
+      "obsession_2025": 0,
+      "heated_rivalry": 0
+    },
+    "identical_duplicates_collapsed": 0
+  },
+  "warnings": []
+}

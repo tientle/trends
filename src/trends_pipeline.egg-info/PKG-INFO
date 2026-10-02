@@ -1,0 +1,109 @@
+Metadata-Version: 2.4
+Name: trends-pipeline
+Version: 0.1.0
+Summary: A reproducible Google Trends CSV validation and feature pipeline
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: pandas<3,>=2.2
+Requires-Dist: PyYAML<7,>=6.0
+Provides-Extra: dev
+Requires-Dist: pytest<9,>=8; extra == "dev"
+
+# Google Trends Weekly Pipeline
+
+This project validates one manually downloaded Google Trends Explore CSV, converts it to tidy weekly rows, calculates descriptive post-peak features, and writes CSV and JSON outputs. It does not collect data, forecast, or estimate search counts or audience size.
+
+The repository does not contain a real Google Trends export. `tests/fixtures/synthetic/` is synthetic test data only and must not be cited as real search interest.
+
+## Acquire The Export
+
+In Google Trends Explore, verify a correctly disambiguated **Topic** for each candidate and record the exact displayed label and entity description:
+
+- Brat, 2024 album
+- Wicked, 2024 film
+- KPop Demon Hunters, 2025 film
+- Labubu, character/toy
+- Love Island USA, recurring reality TV series
+
+Use United States, Web Search, weekly aggregation, and the custom interval 2023-10-01 through 2026-10-01. Include all five Topics together in one chart and one CSV export with identical settings. Do not substitute Search Terms or combine separately normalized exports. If a candidate does not have an appropriate Topic, choose a replacement with the project owner before proceeding. Stop for a scope decision if all five cannot be included in one export.
+
+Download the CSV unchanged as `data/raw/trends.csv`. Copy `data/raw/manifest.example.yaml` to `data/raw/manifest.yaml`, then fill in the request ID, retrieval timestamp, Explore URL, exact Topic labels/descriptions, exact CSV headers, and SHA-256. The manifest must describe the same single request as the CSV. On macOS, calculate the checksum with:
+
+```sh
+shasum -a 256 data/raw/trends.csv
+```
+
+Copy the 64-character digest into `raw.sha256`. Keep the original CSV unedited.
+
+## Install And Run
+
+Python 3.11 or newer is required. From the repository root:
+
+```sh
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e '.[dev]'
+```
+
+Validate without writing processed outputs:
+
+```sh
+trends-pipeline validate \
+  --input data/raw/trends.csv \
+  --manifest data/raw/manifest.yaml
+```
+
+Run the full pipeline:
+
+```sh
+trends-pipeline run \
+  --input data/raw/trends.csv \
+  --manifest data/raw/manifest.yaml \
+  --output-dir data/processed \
+  --report reports/validation.json
+```
+
+`run` writes `data/processed/time_series.csv`, `data/processed/features.csv`, and the validation report. The raw export remains untouched. The CLI exits nonzero and reports an error for checksum mismatches, invalid mappings or metadata, malformed dates/scores, conflicting duplicates, or unexpected weekly cadence. Identical duplicate rows are collapsed with a warning; gaps and missing scores are reported and never imputed.
+
+## Output Definitions
+
+The time-series CSV has one row per Topic/week and records request/series identifiers, Topic label and description, entity type, ISO date, interest index, geography, weekly frequency, and partial-week status. Blank source cells remain missing and zero remains zero.
+
+The feature CSV contains coverage dates, nonblank observation count, global maximum, earliest date at that maximum, peak tie count, whole-window median, and means for the 4, 12, and 26 exact weekly observations after the peak. Each horizon excludes the peak and is complete only when every following week is present, nonblank, and not a partial edge week. Missing/incomplete horizons are blank with a corresponding `post_peak_N_complete` false flag. All-zero series have no defined peak date or post-peak windows.
+
+These post-peak means are descriptive fixed windows, not time-to-peak, baseline, half-life, decay rate, or a single-cycle curve. This matters especially for Love Island USA, which has recurring seasons.
+
+## Docker
+
+Build the image:
+
+```sh
+docker build -t trends-pipeline .
+```
+
+Run it with mounted input and output directories:
+
+```sh
+mkdir -p data/processed reports
+docker run --rm \
+  -v "$PWD/data/raw:/input:ro" \
+  -v "$PWD/data/processed:/output" \
+  -v "$PWD/reports:/reports" \
+  trends-pipeline run \
+  --input /input/trends.csv \
+  --manifest /input/manifest.yaml \
+  --output-dir /output \
+  --report /reports/validation.json
+```
+
+The automated Docker smoke check uses only the clearly labeled synthetic fixture:
+
+```sh
+bash scripts/docker-smoke-test.sh
+```
+
+## Tests And Interpretation
+
+Run offline automated tests with `pytest`. They use synthetic data and do not contact Google. After acquiring real data, manually compare the export's dates, Topic labels, row counts, selected values or peaks, gaps, blanks, zeros, and partial weeks against the Explore chart. Also confirm that the CSV and manifest describe the same single request. This manual comparison is intentionally left to the project owner.
+
+Google Trends values are sampled, normalized relative search-interest indices, not search counts, audience size, or total public attention. Zero does not mean there were no searches, and low-volume values can be noisy. Topic grouping is not fully transparent and may include or omit variants; this five-case cohort is illustrative, not representative of internet culture. Attribute the source to Google Trends. Transformations are reproducible against the preserved export and manifest, but a future Google export may differ.
