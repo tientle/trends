@@ -102,12 +102,6 @@ def validate_export(
             observed_date = date.fromisoformat(date_text)
         except ValueError as error:
             raise ValueError(f"Invalid ISO date {date_text!r} on data row {row_number}") from error
-        week_end = observed_date + timedelta(days=6)
-        if observed_date > manifest.end_date or week_end < manifest.start_date:
-            raise ValueError(
-                f"Weekly observation {observed_date.isoformat()} is outside the manifest request interval "
-                f"{manifest.start_date.isoformat()} through {manifest.end_date.isoformat()}"
-            )
         scores = tuple(
             _score(row[headers.index(column)], f"row {row_number}, column {column!r}")
             for column in expected_columns

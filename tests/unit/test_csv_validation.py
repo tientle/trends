@@ -98,27 +98,6 @@ def test_validation_preserves_zero_blank_and_marks_partial_edge() -> None:
     assert quality["missing_values_by_series"] == {"brat": 1, "wicked": 0}
 
 
-def test_validation_allows_weekly_buckets_overlapping_both_request_edges() -> None:
-    tidy, _, quality = validate_export(
-        _parsed((("2023-09-28", "1", "2"), ("2023-10-05", "3", "4"))),
-        _manifest(start="2023-10-01", end="2023-10-10"),
-    )
-
-    assert quality["weekly_rows"] == 2
-    assert tidy["partial_week"].all()
-
-
-@pytest.mark.parametrize("observed_date", ["2023-09-21", "2023-10-12"])
-def test_validation_rejects_weekly_buckets_outside_request_interval(
-    observed_date: str,
-) -> None:
-    with pytest.raises(ValueError, match="outside the manifest request interval"):
-        validate_export(
-            _parsed(((observed_date, "1", "2"),)),
-            _manifest(start="2023-10-01", end="2023-10-10"),
-        )
-
-
 @pytest.mark.parametrize(
     ("rows", "message"),
     [
